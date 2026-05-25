@@ -9,5 +9,7 @@ class BookingTransaction extends Model
 {
     use SoftDeletes;
 
+    protected $fillable = ['user_id', 'court_schedule_id', 'start_time', 'end_time', 'status'];
+
     //
 }

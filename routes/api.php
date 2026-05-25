@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\BookingController;
 use App\Http\Controllers\Api\V1\CourtController;
 use App\Http\Controllers\Api\V1\CourtScheduleController;
 use App\Http\Controllers\Api\V1\UserController;
@@ -13,7 +14,8 @@ Route::prefix('v1')->group(function() {
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/logout', [UserController::class, 'logout']);
         Route::apiResource('/schedules', CourtScheduleController::class)->only('index');
-    
+        Route::apiResource('/bookings', BookingController::class)->only(['store','show','destroy']);
+
         Route::middleware(['admin'])->group(function () {
             Route::apiResource('/courts', CourtController::class)->only(['index','store','update','destroy']);
             Route::apiResource('/schedules', CourtScheduleController::class)->only('store','destroy');
