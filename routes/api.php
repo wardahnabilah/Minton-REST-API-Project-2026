@@ -11,6 +11,9 @@ Route::prefix('v1')->group(function() {
 
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/logout', [UserController::class, 'logout']);
-        Route::apiResource('/courts', CourtController::class)->only(['index','store','update','destroy']);
+
+        Route::middleware(['admin'])->group(function () {
+            Route::apiResource('/courts', CourtController::class)->only(['index','store','update','destroy']);    
+        });
     });
 });
