@@ -39,6 +39,15 @@ class BookingController extends Controller
 
     public function destroy($id) {
         $booking = BookingTransaction::findOrFail($id);
+
+        if(!auth()->user()->can('delete', $booking)) {
+            return ApiResponse::error(
+                null,
+                'Unauthorized',
+                403,
+            );
+        }
+
         $booking->delete();
 
         return ApiResponse::success(
