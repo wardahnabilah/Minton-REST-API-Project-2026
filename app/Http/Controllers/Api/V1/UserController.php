@@ -40,6 +40,9 @@ class UserController extends Controller
             'message'   => 'user logged in successfully',
             'data'      => [
                 'accessToken'  => $token,
+                'user_id'      => $user->id,
+                'name'         => $user->name,
+                'role'         => $user->role,
             ]
         ]);
     }
