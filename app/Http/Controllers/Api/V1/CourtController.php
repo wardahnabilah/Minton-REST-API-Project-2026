@@ -13,7 +13,7 @@ use Illuminate\Session\Store;
 class CourtController extends Controller
 {
     public function index() {
-        $courts = Court::paginate(10);
+        $courts = Court::with('court_schedule')->paginate(10);
 
         return ApiResponse::success(
             CourtResource::collection($courts),

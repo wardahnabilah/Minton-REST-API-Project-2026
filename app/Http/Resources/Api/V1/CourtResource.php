@@ -18,6 +18,7 @@ class CourtResource extends JsonResource
         return [
             'id'    => $this->id,
             'name'  => $this->name,
+            'court_schedule' => $this->whenLoaded('court_schedule'),
         ];
     }
 }
