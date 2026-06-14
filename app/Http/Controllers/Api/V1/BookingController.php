@@ -11,6 +11,17 @@ use Illuminate\Http\Request;
 
 class BookingController extends Controller
 {
+    public function index() {
+        $bookings = BookingTransaction::where('user_id', auth()->user()->id)->paginate(10);
+
+        return ApiResponse::success(
+            BookingResource::collection($bookings),
+            'booking data retrieved successfully',
+            200,
+        );
+    }
+
+
     public function store(Request $request) {
         $booking = BookingTransaction::create([
             'user_id'           => auth()->user()->id,
