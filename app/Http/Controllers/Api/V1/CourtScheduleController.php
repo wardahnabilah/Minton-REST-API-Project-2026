@@ -15,9 +15,12 @@ class CourtScheduleController extends Controller
 {
     public function index() {
         $schedules = CourtSchedule::with('court:id,name')->paginate(10);
+        $resource = CourtScheduleResource::collection($schedules)->response()->getData();
 
         return ApiResponse::success(
-            CourtScheduleResource::collection($schedules),
+            $resource->data,
+            $resource->meta,
+            $resource->links,
             'court schedules retrieved successfully',
             200,
         );

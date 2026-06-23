@@ -5,14 +5,26 @@ namespace App\Helpers;
 class ApiResponse {
     public static function success(
         $data = null,
+        $meta = null,
+        $links = null,
         $message = 'success', 
         $status_code = 200,
     ) {
-        return response()->json([
+        $response = [
             'success'   => true,
             'message'   => $message,
             'data'      => $data,
-        ], $status_code);
+        ];
+
+        if($meta) {
+            $response['meta'] = $meta;
+        }
+
+        if($links) {
+            $response['links'] = $links;
+        }
+
+        return response()->json($response, $status_code);
     }
 
     public static function error(
