@@ -4,6 +4,7 @@ namespace App\Http\Resources\Api\V1;
 
 use App\Models\BookingTransaction;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -20,34 +21,43 @@ class CourtScheduleResource extends JsonResource
             'id'        => $this->id,
             'court'     => $this->whenLoaded('court'),
             'day'       => $this->day,
+            'date'      => $this->getDate(),
             'open_time' => $this->open_time,
             'close_time' => $this->close_time,
-            'schedules' => $this->when(is_null($this->deleted_at), function() {
-                return $this->generateSchedules();
-            }),
+            'slots'     => $this->generateSlots(),
         ];
     }
 
-    private function generateSchedules() {
+    private function getDate() {
         $day = $this->day;
+
+        // get the date within the next 7 days, based on day name
+        $period = CarbonPeriod::create(now(), now()->addDays(7));
+        $date = collect($period)->filter(function ($item) use ($day) {
+            return strtolower($item->format('l')) === $day;
+        });
+
+        return $date->first()->format('d/m/Y');
+    }
+
+    private function generateSlots() {
         $open_time = Carbon::parse($this->open_time);
         $close_time = Carbon::parse($this->close_time);
-        $schedules = [];
+        $slots = [];
 
         $count = $open_time->diffInHours($close_time);
         for($i = 0; $i < round($count); $i++) {
             $start_time = $open_time->copy()->addHours($i);
             $end_time = $start_time->copy()->addHour();
             
-            $schedules[] = (object) [
-                'day'        => $day,
+            $slots[] = (object) [
                 'start_time' => $start_time->format('H:i'),
                 'end_time'   => $end_time->format('H:i'),
                 'status'     => $this->checkStatus($start_time, $end_time), // available or booked
             ];
         } 
 
-        return $schedules;
+        return $slots;
     }
 
     private function checkStatus($start_time, $end_time) {

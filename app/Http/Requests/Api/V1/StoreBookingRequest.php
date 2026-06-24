@@ -24,6 +24,7 @@ class StoreBookingRequest extends FormRequest
     {
         return [
             'court_schedule_id' => 'required|integer|exists:court_schedules,id',
+            'date'              => 'required|date_format:d/m/Y',
             'start_time'        => 'required|date_format:H:i',
             'end_time'          => 'required|date_format:H:i',
         ];
