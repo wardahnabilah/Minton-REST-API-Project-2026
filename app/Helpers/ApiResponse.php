@@ -5,10 +5,10 @@ namespace App\Helpers;
 class ApiResponse {
     public static function success(
         $data = null,
-        $meta = null,
-        $links = null,
         $message = 'success', 
         $status_code = 200,
+        $meta = null,
+        $links = null,
     ) {
         $response = [
             'success'   => true,

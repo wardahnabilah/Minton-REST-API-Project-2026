@@ -19,10 +19,10 @@ class CourtScheduleController extends Controller
 
         return ApiResponse::success(
             $resource->data,
-            $resource->meta,
-            $resource->links,
             'court schedules retrieved successfully',
             200,
+            $resource->meta,
+            $resource->links,
         );
     }
 
