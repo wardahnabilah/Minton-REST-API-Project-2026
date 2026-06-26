@@ -1,66 +1,372 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Minton Booking REST API
+#### REST API built with Laravel 12 for minton - badminton court booking app
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Features
+- Authentication (Register, Login, Logout) using Laravel Sanctum API token
+- CRUD courts, court schedules, bookings
 
-## About Laravel
+## Base URL
+```
+http://your-domain.com/api/v1
+```
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Headers
+```http
+Content-Type: 'application/json',
+Accept: 'application/json',
+Authorization: 'Bearer {token}' 
+```
+> `Authorization` is required for all endpoints except `/register` and `/login`
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Endpoints
+### Register
+| Method | Endpoint | Description  |
+|----- |-------- | ------- |
+|POST | /register | Create new user |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+#### Example Request
+``` 
+{
+    "name": "test",
+    "email": "test@mail.com",
+    "password": "12345678",
+    "password_confirmation": "12345678"
+}
+```
+#### Example Response Success
+```
+{
+    "success": true,
+    "message": "user created successfully",
+    "data": {
+        "id": 1,
+        "name": "test"
+    }
+}
+```
+#### Example Response Error
+```
+{
+    "success": false,
+    "message": "Validation failed",
+    "errors": {
+        "email": [
+            "The email has already been taken."
+        ],
+        "name": [
+            "The name field is required."
+        ],
+        "password": [
+            "The password field must be at least 8 characters."
+        ]
+    }
+}
+```
+### Login
+| Method | Endpoint | Description  |
+|----- |-------- | ------- |
+| POST | /login | user log in |
 
-## Learning Laravel
+#### Example Request
+``` 
+{
+    "email": "test@mail.com",
+    "password": "12345678"
+}
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```
+#### Example Response Success
+```
+{
+    "success": true,
+    "message": "user logged in successfully",
+    "data": {
+        "accessToken": "1|XI9gWCbw5Tm4K0GtgV5ZoCmqCHCr29zvZ0Fp5WcRa4cb0af0"
+    }
+}
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```
+#### Example Response Error
+```
+{
+    "success": false,
+    "message": "invalid email and/or password"
+}
+```
+### Logout
+| Method | Endpoint | Description  |
+|----- |-------- | ------- |
+| POST | /logout | user log out |
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+#### Example Response Success
+```
+{
+    "success": true,
+    "message": "user logged out successfully",
+    "data": []
+}
+```
 
-## Laravel Sponsors
+### Courts API
+##### * can only be accessed by users with admin role 
+| Method | Endpoint | Description  |
+|----- |-------- | ------- |
+|GET | /courts | Get all courts |
+|POST | /courts | Create new court |
+|PUT  |  /courts/{id} | Update court |
+|DELETE | /courts/{id} | Delete court |
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- GET /courts
+    #### Example Response
+    ```
+    {
+        "success": true,
+        "message": "data retrieved successfully",
+        "data": [
+            {
+                "id": 1,
+                "name": "Court A",
+                "court_schedule": {
+                    "id": 1,
+                    "court_id": 1,
+                    "day": "tuesday",
+                    "open_time": "09:00",
+                    "close_time": "11:00",
+                    "created_by": 1,
+                    "updated_by": null,
+                    "deleted_by": null,
+                    "created_at": "2026-06-11T16:11:07.000000Z",
+                    "updated_at": "2026-06-11T16:11:07.000000Z",
+                    "deleted_at": null
+                },
+                "schedules": [
+                    {
+                        "day": "tuesday",
+                        "start_time": "09:00",
+                        "end_time": "10:00",
+                        "status": "booked"
+                    },
+                    {
+                        "day": "tuesday",
+                        "start_time": "10:00",
+                        "end_time": "11:00",
+                        "status": "available"
+                    }
+                ]
+            },
+            {
+                "id": 2,
+                "name": "Court B",
+                "court_schedule": {
+                    "id": 13,
+                    "court_id": 5,
+                    "day": "wednesday",
+                    "open_time": "06:00",
+                    "close_time": "07:00",
+                    "created_by": 2,
+                    "updated_by": null,
+                    "deleted_by": null,
+                    "created_at": "2026-06-12T13:55:08.000000Z",
+                    "updated_at": "2026-06-12T13:55:08.000000Z",
+                    "deleted_at": null
+                },
+                "schedules": [
+                    {
+                        "day": "wednesday",
+                        "start_time": "06:00",
+                        "end_time": "07:00",
+                        "status": "available"
+                    }
+                ]
+            }
+        ]
+    }
+    ```
+- POST /courts
+    #### Example Request 
+    ``` 
+    {
+        “name”: “Court A”
+    }
+    ```
+    #### Example Response 
+    ```
+    {
+        "success": true,
+        "message": "court created successfully",
+        "data": {
+            "id": 1,
+            "name": "Lapangan A"
+        }
+    }
+    ```
+- PUT /courts/{id}
+    #### Example Request 
+    ``` 
+    {
+        “name”: “Court A edit”
+    }
+    ```
+    #### Example Response 
+    ```
+    {
+        "success": true,
+        "message": "court successfully updated",
+        "data": {
+            "id": 1,
+            "name": "Court A edit",
+        }
+    }
+    ```
+- DELETE /courts/{id}
+    ```
+    {
+        "success": true,
+        "message": "court successfully deleted",
+        "data": null
+    }
+    ```
 
-### Premium Partners
+### Schedules API
+##### * can only be accessed by users with admin role 
+| Method | Endpoint | Description  |
+|----- |-------- | ------- |
+|POST | /schedules | Create new court schedules |
+|PUT  |  /schedules/{id} | Update court schedule |
+|DELETE | /schedules/{id} | Delete court schedule |
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+- POST /schedules
+    #### Example Request 
+    ``` 
+    {
+        "court_id": "1",
+        "day": "monday", 
+        "open_time": "07:00",
+        "close_time": "10:00"
+    }
+    ```
+    #### Example Response 
+    ```
+    {
+        "success": true,
+        "message": "court schedule created successfully",
+        "data": {
+            "id": 5,
+            "day": "monday",
+            "open_time": "07:00",
+            "close_time": "10:00"
+        }
+    }
+    ```
+- PUT /schedules/{id}
+    #### Example Request 
+    ``` 
+    {
+        "court_id": "1",
+        "day": "monday", 
+        "open_time": "07:00",
+        "close_time": "09:00"
+    }
+    ```
+    #### Example Response 
+    ```
+    {
+        "success": true,
+        "message": "court schedule updated successfully",
+        "data": {
+            "id": 5,
+            "day": "monday",
+            "open_time": "07:00",
+            "close_time": "09:00"
+        }
+    }
+    ```
+- DELETE /schedules/{id}
+    #### Example Response 
+    ```
+    {
+        "success": true,
+        "message": "court schedule deleted successfully",
+        "data": null
+    }
+    ```
 
-## Contributing
+### Bookings API
+##### * can only be accessed by users with admin role 
+| Method | Endpoint | Description  |
+|----- |-------- | ------- |
+|GET | /bookings | Get all bookings |
+|POST | /bookings | Create new booking |
+|GET  |  /bookings/{id} | Get booking by id |
+|DELETE | /bookings/{id} | Cancel booking |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- GET /bookings
+    ```
+    {
+        "success": true,
+        "message": "booking data retrieved successfully",
+        "data": [
+            {
+                "id": 6,
+                "user_id": 2,
+                "court_schedule_id": 2,
+                "start_time": "08:00:00",
+                "end_time": "09:00:00"
+            },
+            {
+                "id": 7,
+                "user_id": 2,
+                "court_schedule_id": 1,
+                "start_time": "07:00:00",
+                "end_time": "08:00:00"
+            }
+        ]
+    }
+    ```
+- POST /bookings
+    #### Example Request 
+    ``` 
+    {
+        "court_schedule_id": "1", 
+        "start_time": "07:00",
+        "end_time": "08:00"
+    }
+    ```
+    #### Example Response 
+    ```
+    {
+        "success": true,
+        "message": "booking created succesfully",
+        "data": {
+            "id": 7,
+            "user_id": 2,
+            "court_schedule_id": "1",
+            "start_time": "07:00",
+            "end_time": "08:00"
+        }
+    }
+ - GET /bookings/{id}
+    #### Example Response 
+    ```
+    {
+        "success": true,
+        "message": "booking detail retrieved successfully",
+        "data": {
+            "id": 6,
+            "user_id": 2,
+            "court_schedule_id": 13,
+            "start_time": "07:00:00",
+            "end_time": "08:00:00"
+        }
+    }
+    ```
+ - DELETE /bookings/{id}
+    #### Example Response 
+    ```
+    {
+        "success": true,
+        "message": "booking deleted successfully",
+        "data": null
+    }
+    ```
 
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
